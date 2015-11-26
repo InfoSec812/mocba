@@ -6,14 +6,15 @@
 %% API functions
 -export([
          start_link/0,
-         start_ep/2
+         start_ep/2,
+         stop_ep/1
         ]).
 
 %% Supervisor callbacks
 -export([init/1]).
 
--define(CHILD(Id, Mod, Type, Args), {Id, {Mod, start_link, Args},
-                                     permanent, 5000, Type, [Mod]}).
+child(Id, Args) -> 
+    {Id, {mocba_ep, start_link, Args}, permanent, 5000, worker, [mocba_ep]}.
 
 %%%===================================================================
 %%% API functions
@@ -21,7 +22,14 @@
 -spec start_ep(term(), state()) -> term().
 
 start_ep(Id, Config) ->
-    supervisor:start_child({local, ?MODULE}, ?CHILD(Id, mocba_ep, worker, [Id, Config])).
+    stop_ep(Id),
+    error_logger:info_msg("starting endpoint ~p\n", [Id]),
+    supervisor:start_child(?MODULE, child(Id, [Id, Config])).
+
+stop_ep(Id) ->
+    error_logger:info_msg("removing endpoint ~p\n", [Id]),
+    supervisor:terminate_child(?MODULE, Id),
+    supervisor:delete_child(?MODULE, Id).
 
 %%--------------------------------------------------------------------
 %% @doc

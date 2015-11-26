@@ -29,11 +29,11 @@ it_is_alive(Pid) ->
     ?_assertEqual(true, is_process_alive(Pid)).
 
 should_find(Pid) ->
-    ?debugMsg("omething"),
+    %?debugMsg("omething"),
     fun() -> {ok, {200, #{}, <<"OK">>}} = mocba_ep:handle_request(Pid, <<"GET">>) end.
 
 should_cycle(Pid) ->
-    ?debugMsg("omething"),
+    %?debugMsg("omething"),
     fun() -> 
             {ok, {200, #{}, <<"OK">>}} = mocba_ep:handle_request(Pid, <<"GET">>),
             {ok, {200, #{}, <<"OK2">>}} = mocba_ep:handle_request(Pid, <<"GET">>),
@@ -41,7 +41,7 @@ should_cycle(Pid) ->
     end.
 
 should_not_find(Pid) ->
-    ?debugMsg("omething"),
+    %?debugMsg("omething"),
     fun() -> {error, _} = mocba_ep:handle_request(Pid, <<"POST">>) end.
 
 
