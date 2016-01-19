@@ -20,7 +20,7 @@ start(_StartType, _StartArgs) ->
         {'_', 
          [
           {"/epmgmt/:epname", mocba_epmgmt_http_handler, []},
-          {"/ep/:epname", mocba_ep_http_handler, []}
+          {"/ep/:epname/[...]", mocba_ep_http_handler, []}
          ]}
      ]),
     cowboy:start_http(mocba_http_listener, 100, [{port, 8089}],

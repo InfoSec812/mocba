@@ -1,0 +1,20 @@
+{
+    "forwarders": [
+        {
+            "target": "kjnilsson@gmail.com",
+            "type": "email"
+        }
+    ],
+    "mappings": [
+        {
+            "method": "GET",
+            "replies": [
+                {
+                    "code": 200,
+                    "data": "a2FybAo=",
+                    "headers": []
+                }
+            ]
+        }
+    ]
+}

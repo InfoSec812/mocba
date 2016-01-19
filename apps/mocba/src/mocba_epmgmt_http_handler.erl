@@ -5,17 +5,24 @@
 init({tcp, http}, Req, _Opts) ->
   {ok, Req, []}.
 
+to_config(#{<<"mappings">> := Mappings}) ->
+  %io:format("json: ~p~n", [Stuff]),
+  lists:foldl(fun(#{<<"method">> := Method, <<"replies">> := Replies}, Acc) ->
+                          C2 = [{Code, [], base64:decode(Data)} || 
+                                #{<<"code">> := Code, <<"data">> := Data} <- Replies],
+                          Acc#{Method => C2} end,
+                   #{}, Mappings).
+
 handle(Req, State) ->
   {Cat, _} = cowboy_req:binding(epname, Req),
-  {ok, Data, Req2} = cowboy_req:body(Req),
-  {Headers, _} = cowboy_req:headers(Req),
-  Json = jsone:decode(Data),
-  io:format("json: ~p~n", [Json]),
-  io:format("headers: ~p~n", [Headers]),
-  case cowboy_req:method(Req2) of
-      {M, Req3} when 
-            M =:= <<"POST">>; 
-            M =:= <<"PUT">> ->
+  %{Headers, _} = cowboy_req:headers(Req),
+  EpName = list_to_atom(bitstring_to_list(Cat)),
+  %io:format("headers: ~p~n", [Headers]),
+  case cowboy_req:method(Req) of
+      {<<"PUT">>, Req2} ->
+          {ok, Data, Req3} = cowboy_req:body(Req2),
+          C = to_config(jsone:decode(Data)),
+          {ok, _} = mocba_ep_sup:start_ep(EpName, C),
           {ok, Req4} = cowboy_req:reply(200, [], io_lib:format("~s~n", [Cat]), Req3),
           {ok, Req4, State};
       {<<"GET">>, Req3} ->

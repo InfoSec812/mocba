@@ -1,3 +1,3 @@
 {
-    'get': [{'code': 200, 'headers': ["Content-Type: text/json"], 'payload': "ASDF"}]
+    "get": [{"code": 200, "headers': [Content-Type: text/json], "payload": "ASDF"}]
 }

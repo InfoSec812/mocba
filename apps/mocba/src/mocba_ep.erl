@@ -42,8 +42,8 @@ start_link(Config) ->
 start_link(Name, Config) ->
     gen_server:start_link({local, Name}, ?MODULE, [Config], []).
 
-handle_request(Pid, Meth) ->
-    gen_server:call(Pid, Meth).
+handle_request(Pid, Req) ->
+    gen_server:call(Pid, Req).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -77,10 +77,10 @@ init([Config]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call_internal(Request, State) ->
+handle_call_internal({Method, _Headers, _Body}, State) ->
     case State of
-        #{Request := [Res|Rest]} ->
-            {reply, {ok, Res}, State#{Request := Rest ++ [Res]}};
+        #{Method := [Res|Rest]} ->
+            {reply, {ok, Res}, State#{Method := Rest ++ [Res]}};
         State ->
             {reply, {error, "no match for method"}, State}
     end.
