@@ -2,12 +2,12 @@
 -behaviour(gen_server).
 -include("mocba.hrl").
 %% API functions
+
 -export([
          start_link/1,
          start_link/2,
          handle_request/2
         ]).
-
 %% gen_server callbacks
 -export([init/1,
          handle_call/3,
