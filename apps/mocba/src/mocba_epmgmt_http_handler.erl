@@ -6,8 +6,7 @@ init({tcp, http}, Req, _Opts) ->
   {ok, Req, []}.
 
 to_config(#{<<"mappings">> := Mappings}) ->
-  %io:format("json: ~p~n", [Stuff]),
-  lists:foldl(fun(#{<<"method">> := Method, <<"replies">> := Replies}, Acc) ->
+    lists:foldl(fun(#{<<"method">> := Method, <<"replies">> := Replies}, Acc) ->
                           C2 = [{Code, [], base64:decode(Data)} || 
                                 #{<<"code">> := Code, <<"data">> := Data} <- Replies],
                           Acc#{Method => C2} end,
@@ -15,9 +14,7 @@ to_config(#{<<"mappings">> := Mappings}) ->
 
 handle(Req, State) ->
   {Cat, _} = cowboy_req:binding(epname, Req),
-  %{Headers, _} = cowboy_req:headers(Req),
   EpName = list_to_atom(bitstring_to_list(Cat)),
-  %io:format("headers: ~p~n", [Headers]),
   case cowboy_req:method(Req) of
       {<<"PUT">>, Req2} ->
           {ok, Data, Req3} = cowboy_req:body(Req2),
