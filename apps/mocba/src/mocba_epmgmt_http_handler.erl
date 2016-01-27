@@ -12,6 +12,13 @@ to_config(#{<<"mappings">> := Mappings}) ->
                           Acc#{Method => C2} end,
                    #{}, Mappings).
 
+ep_uri(Req, EpName) ->
+    {BH, Req2} = cowboy_req:host(Req),
+    H = binary_to_list(BH),
+    {P, Req3} = cowboy_req:port(Req2),
+    io:format("meh~p~n", [P]),
+    {lists:concat(["http://", H, ":", P, "/ep/", EpName]), Req3}.
+
 handle(Req, State) ->
   {Cat, _} = cowboy_req:binding(epname, Req),
   EpName = list_to_atom(bitstring_to_list(Cat)),
@@ -20,8 +27,9 @@ handle(Req, State) ->
           {ok, Data, Req3} = cowboy_req:body(Req2),
           C = to_config(jsone:decode(Data)),
           {ok, _} = mocba_ep_sup:start_ep(EpName, C),
-          {ok, Req4} = cowboy_req:reply(200, [], io_lib:format("~s~n", [Cat]), Req3),
-          {ok, Req4, State};
+          {Resp, Req4} = ep_uri(Req3, EpName),
+          {ok, Req5} = cowboy_req:reply(200, [], Resp, Req4),
+          {ok, Req5, State};
       {<<"GET">>, Req3} ->
           {ok, Req4} = cowboy_req:reply(200, [], Cat, Req3),
           {ok, Req4, State}

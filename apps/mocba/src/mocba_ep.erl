@@ -23,11 +23,8 @@
 -spec start_link(Name :: atom(), Config :: state()) ->
     {ok, pid()} | ignore | {error, _}.
     
--spec handle_request(term(), Meth :: bitstring()) -> 
+-spec handle_request(term(), MHB :: mhb()) -> 
     {ok, item()} | {error, string()} .
-
--spec handle_call_internal(Request :: bitstring(), State :: state()) ->
-    {reply, reply(), state()}.
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -43,7 +40,7 @@ start_link(Name, Config) ->
     gen_server:start_link({local, Name}, ?MODULE, [Config], []).
 
 handle_request(Pid, Req) ->
-    gen_server:call(Pid, Req).
+    gen_server:call(Pid, {method, Req}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -77,7 +74,11 @@ init([Config]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call_internal({Method, _Headers, _Body}, State) ->
+
+-spec handle_call_internal({method, mhb()}, State :: state()) ->
+    {reply, reply(), state()}.
+
+handle_call_internal({method, {Method, _Headers, _Body}}, State) ->
     case State of
         #{Method := [Res|Rest]} ->
             {reply, {ok, Res}, State#{Method := Rest ++ [Res]}};
