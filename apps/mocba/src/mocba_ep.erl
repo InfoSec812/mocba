@@ -16,15 +16,15 @@
          terminate/2,
          code_change/3]).
 
--type reply() :: {ok, item()} | {error, string()}.
+-type reply() :: {ok, chb()} | {error, string()}.
 %%%===================================================================
 %%% API functions
 %%%===================================================================
--spec start_link(Name :: atom(), Config :: state()) ->
+-spec start_link(Name :: atom(), Config :: epstate()) ->
     {ok, pid()} | ignore | {error, _}.
     
 -spec handle_request(term(), MHB :: mhb()) -> 
-    {ok, item()} | {error, string()} .
+    {ok, chb()} | {error, string()} .
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -75,8 +75,8 @@ init([Config]) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec handle_call_internal({method, mhb()}, State :: state()) ->
-    {reply, reply(), state()}.
+-spec handle_call_internal({method, mhb()}, State :: epstate()) ->
+    {reply, reply(), epstate()}.
 
 handle_call_internal({method, {Method, _Headers, _Body}}, State) ->
     case State of
