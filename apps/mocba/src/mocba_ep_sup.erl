@@ -19,7 +19,7 @@ child(Id, Args) ->
 %%%===================================================================
 %%% API functions
 %%%===================================================================
--spec start_ep(term(), state()) -> term().
+-spec start_ep(term(), epstate()) -> term().
 
 start_ep(Id, Config) ->
     stop_ep(Id),

@@ -1,5 +1,7 @@
-
 -type headers() :: [{bitstring(), bitstring()}].
--type item() :: {integer(), headers(), bitstring()}.
--type state() :: #{ bitstring() => [item()]}.
+-type body() :: bitstring().
+-type chb() :: {integer(), headers(), body()}.
+-type chb_lookup() :: #{ bitstring() => [chb()]}.
+-type forwarder() :: {email, bitstring()}.
+-type epstate() :: #{ mappings => chb_lookup(), forwarders => [forwarder()] }.
 -type mhb() :: {bitstring(), headers(), bitstring()}.
