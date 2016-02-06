@@ -1,0 +1,3 @@
+FEATURE: implement email request forwarding
+
+TASK: build script to build, test and create and push docker container

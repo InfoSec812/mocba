@@ -13,11 +13,9 @@ to_config(#{<<"mappings">> := Mappings}) ->
                    #{}, Mappings).
 
 ep_uri(Req, EpName) ->
-    {BH, Req2} = cowboy_req:host(Req),
-    H = binary_to_list(BH),
+    {H, Req2} = cowboy_req:host(Req),
     {P, Req3} = cowboy_req:port(Req2),
-    io:format("meh~p~n", [P]),
-    {lists:concat(["http://", H, ":", P, "/ep/", EpName]), Req3}.
+    {lists:concat(["http://", binary_to_list(H), ":", P, "/ep/", EpName]), Req3}.
 
 handle(Req, State) ->
   {Cat, _} = cowboy_req:binding(epname, Req),
@@ -25,10 +23,10 @@ handle(Req, State) ->
   case cowboy_req:method(Req) of
       {<<"PUT">>, Req2} ->
           {ok, Data, Req3} = cowboy_req:body(Req2),
+          {EpUri, Req4} = ep_uri(Req3, EpName),
           C = to_config(jsone:decode(Data)),
           {ok, _} = mocba_ep_sup:start_ep(EpName, C),
-          {Resp, Req4} = ep_uri(Req3, EpName),
-          {ok, Req5} = cowboy_req:reply(200, [], Resp, Req4),
+          {ok, Req5} = cowboy_req:reply(200, [], EpUri, Req4),
           {ok, Req5, State};
       {<<"GET">>, Req3} ->
           {ok, Req4} = cowboy_req:reply(200, [], Cat, Req3),
