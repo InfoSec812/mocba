@@ -28,15 +28,26 @@ start_link() ->
 
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, { {one_for_all, 0, 1}, 
-           [
-            {mocba_ep_sup, 
+    EpSupSpec = 
+        {mocba_ep_sup,
              {mocba_ep_sup, start_link, []}, 
              permanent, 
              5000, 
              supervisor, 
              [mocba_ep_sup]
-            }
+            },
+    Notify = 
+        {mocba_notify,
+             {mocba_notify, start_link, []}, 
+             permanent, 
+             5000, 
+             worker, 
+             [mocba_notify]
+            },
+    {ok, { {one_for_one, 0, 1}, 
+           [ 
+            EpSupSpec,
+            Notify
            ]}}.
 
 %%====================================================================
