@@ -3,7 +3,10 @@
 -behaviour(gen_server).
 
 %% API functions
--export([start_link/0]).
+-export([
+         start_link/1,
+         by_email/1
+        ]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -13,7 +16,6 @@
          terminate/2,
          code_change/3]).
 
--record(state, {}).
 
 %%%===================================================================
 %%% API functions
@@ -26,8 +28,18 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+start_link(Opts) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [Opts], []).
+
+-type email_request() :: 
+                 #{to => bitstring(), 
+                   from => bitstring(), 
+                   subject => bitstring(), 
+                   message => bitstring()}.
+
+-spec  by_email(Email :: email_request()) -> ok.
+by_email(Email) ->
+    gen_server:cast(?MODULE, {email, Email}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -44,8 +56,8 @@ start_link() ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init(Opts) ->
+    {ok, Opts}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -65,6 +77,13 @@ handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
 
+build_email(#{to := To, from := From, message := Msg, subject := Subj}) ->
+    S = if is_binary(Subj) -> binary_to_list(Subj); true -> Subj end,
+    M = if is_binary(Msg) -> binary_to_list(Msg); true -> Msg end,
+    {From, 
+     [To], 
+     lists:concat([ "Subject: ", S, "\r\n", M ])}.
+
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -75,8 +94,17 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast(_Msg, State) ->
-    {noreply, State}.
+handle_cast({email, Email}, Opts) ->
+    error_logger:info_msg("email notification request received..~p\n", [Opts]),
+    E = build_email(Email),
+    error_logger:info_msg("email created..~p\n", [E]),
+    case gen_smtp_client:send_blocking(E, Opts) of
+        {error, Err, ErrDetail} ->
+            error_logger:error_msg("email error ~p ~p~n", [Err, ErrDetail]);
+        Res ->
+            error_logger:info_msg("email sent ok - ~p", [Res])
+    end,
+    {noreply, Opts}.
 
 %%--------------------------------------------------------------------
 %% @private

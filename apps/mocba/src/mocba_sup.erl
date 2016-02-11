@@ -38,7 +38,7 @@ init([]) ->
             },
     Notify = 
         {mocba_notify,
-             {mocba_notify, start_link, []}, 
+             {mocba_notify, start_link, [{relay, "localhost"}]}, 
              permanent, 
              5000, 
              worker, 
