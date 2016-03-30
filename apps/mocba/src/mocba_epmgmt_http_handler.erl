@@ -5,10 +5,19 @@
 init({tcp, http}, Req, _Opts) ->
   {ok, Req, []}.
 
+trim(<<" ", Rest/binary>>) ->
+    trim(Rest);
+trim(X) -> X.
+
+to_headers(Headers) ->
+    Headers2 = lists:map(fun(H) -> binary:split(H, [<<":">>, <<":">>]) end, Headers),
+    [{trim(K), trim(V)} ||
+     [K, V] <- Headers2].
+
 to_replies(#{<<"replies">> := Mappings}) ->
     lists:foldl(fun(#{<<"method">> := Method, <<"replies">> := Replies}, Acc) ->
-                          C2 = [{Code, [], base64:decode(Data)} || 
-                                #{<<"code">> := Code, <<"data">> := Data} <- Replies],
+                          C2 = [{Code, to_headers(Headers), base64:decode(Data)} || 
+                                #{<<"code">> := Code, <<"data">> := Data, <<"headers">> := Headers} <- Replies],
                           Acc#{Method => C2} end,
                    #{}, Mappings).
 

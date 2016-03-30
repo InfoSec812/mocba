@@ -12,7 +12,7 @@
                 {
                     "code": 200,
                     "data": "a2FybAo=",
-                    "headers": []
+                    "headers": ["Content-Type: text/plain"]
                 }
             ]
         }
