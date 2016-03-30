@@ -3,5 +3,5 @@
 -type chb() :: {integer(), headers(), body()}.
 -type chb_lookup() :: #{ bitstring() => [chb()]}.
 -type forwarder() :: {email, bitstring()}.
--type epstate() :: #{ mappings => chb_lookup(), forwarders => [forwarder()] }.
+-type epstate() :: #{ replies => chb_lookup(), forwarders => [forwarder()] }.
 -type mhb() :: {bitstring(), headers(), bitstring()}.

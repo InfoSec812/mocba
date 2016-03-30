@@ -26,6 +26,7 @@ handle(Req, State) ->
   case EpExists of 
       true ->
           {Req1, MHB} = extract_mhb(Req),
+          %todo send notification here?
           {ok, Req2} = handle_request(Req1, EpName, MHB),
           {ok, Req2, State};
       _ ->

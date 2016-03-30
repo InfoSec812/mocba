@@ -5,12 +5,17 @@
 init({tcp, http}, Req, _Opts) ->
   {ok, Req, []}.
 
-to_config(#{<<"mappings">> := Mappings}) ->
+to_replies(#{<<"replies">> := Mappings}) ->
     lists:foldl(fun(#{<<"method">> := Method, <<"replies">> := Replies}, Acc) ->
                           C2 = [{Code, [], base64:decode(Data)} || 
                                 #{<<"code">> := Code, <<"data">> := Data} <- Replies],
                           Acc#{Method => C2} end,
                    #{}, Mappings).
+
+to_forwarders(#{<<"forwarders">> := Fwds}) ->
+    [{email, Email} || 
+     #{<<"target">> := Email, <<"type">> := T} <- Fwds, 
+     T == <<"email">>].
 
 ep_uri(Req, EpName) ->
     {H, Req2} = cowboy_req:host(Req),
@@ -24,8 +29,10 @@ handle(Req, State) ->
       {<<"PUT">>, Req2} ->
           {ok, Data, Req3} = cowboy_req:body(Req2),
           {EpUri, Req4} = ep_uri(Req3, EpName),
-          C = to_config(jsone:decode(Data)),
-          {ok, _} = mocba_ep_sup:start_ep(EpName, C),
+          J = jsone:decode(Data),
+          Reps = to_replies(J),
+          Fwds = to_forwarders(J),
+          {ok, _} = mocba_ep_sup:start_ep(EpName, #{forwarders => Fwds, replies => Reps}),
           {ok, Req5} = cowboy_req:reply(200, [], EpUri, Req4),
           {ok, Req5, State};
       {<<"GET">>, Req3} ->

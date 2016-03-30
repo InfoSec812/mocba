@@ -15,11 +15,13 @@ mocba_ep_test_() ->
 setup() ->
     %?debugMsg("setup"),
     process_flag(trap_exit, true),
-    {ok, Pid} = mocba_ep:start_link(#{<<"GET">> => 
-                                      [
-                                       {200, [], <<"OK">>},
-                                       {200, [], <<"OK2">>}
-                                      ]}),
+    {ok, Pid} = mocba_ep:start_link(#{replies =>
+                                      #{<<"GET">> => 
+                                          [
+                                           {200, [], <<"OK">>},
+                                           {200, [], <<"OK2">>}
+                                          ]}
+                                     }),
     Pid.
 
 teardown(Pid) ->

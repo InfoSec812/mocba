@@ -80,8 +80,9 @@ init([Config]) ->
 
 handle_call_internal({method, {Method, _Headers, _Body}}, State) ->
     case State of
-        #{Method := [Res|Rest]} ->
-            {reply, {ok, Res}, State#{Method := Rest ++ [Res]}};
+        #{replies := #{Method := [Res|Rest]}} ->
+            Next = State#{replies => #{Method => Rest ++ [Res]}},
+            {reply, {ok, Res}, Next};
         State ->
             {reply, {error, "no match for method"}, State}
     end.

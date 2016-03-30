@@ -100,7 +100,7 @@ handle_cast({email, Email}, Opts) ->
     error_logger:info_msg("email created..~p\n", [E]),
     case gen_smtp_client:send_blocking(E, Opts) of
         {error, Err, ErrDetail} ->
-            error_logger:error_msg("email error ~p ~p~n", [Err, ErrDetail]);
+            error_logger:error_msg("email error ~p ~p~n", [Err]);
         Res ->
             error_logger:info_msg("email sent ok - ~p", [Res])
     end,

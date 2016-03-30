@@ -5,7 +5,7 @@
             "type": "email"
         }
     ],
-    "mappings": [
+    "replies": [
         {
             "method": "GET",
             "replies": [
